@@ -54,4 +54,72 @@ class Matrix():
         """
         Subtract two matrices, with an exception if they are differently sized.
         """
+        if self.rows == other.rows and self.columns == other.columns: # Check if same size
+            values = []
+            for i in range(len(self.values)):
+                values.append(self.values[i] - other.values[i]) # Appending the subtracted values to a list
+            values = tuple(values) # Making the list a tuple
+            return Matrix(self.rows, self.columns, values) # and then returning a new matrix
+        else:
+            raise Exception("UnequalRowsAndColumns") # The exception for mismatched sizes
 
+    def __mul__(self, scalar):
+        """
+        Multiply a matrix by a scalar.
+        """
+        values = []
+        if isinstance(scalar, int):
+            for value in self.values:
+                values.append(value * scalar)
+            tuple(values)
+            return Matrix(self.rows, self.columns, values)
+        else:
+            raise Exception("MultByNonInt")
+
+    def __matmul__(self, other):
+        if self.columns == other.rows:
+            values = []
+            for i in range(other.columns):
+                for x in range(self.rows):
+                    row = self.get_row(self, x)
+                    column = self.get_col(other, i)
+                    for z in range(self.columns):
+                        values.append(row[z] * column[z])
+            vals = self.chunk_it(values, self.rows * other.columns)
+            _values = []
+            for _list in vals:
+                value = 0
+                for val in _list:
+                    value += val
+                _values.append(value)
+            _values = _values[0::2] + _values[1::2]
+            return Matrix(self.rows, other.columns, tuple(_values))
+        else:
+            raise Exception("UnequalRowsAndColumns")
+
+    def get_col(self, matrix, col_num):
+        column = matrix.values[col_num::matrix.columns]
+        return column
+
+    def get_row(self, matrix, row_num):
+        values = matrix.values
+        rows = self.chunk_it(values, matrix.rows)
+        return rows[row_num]
+
+    def chunk_it(self, seq, num):
+        """
+        This function was made by Max Shawabkeh, on Jan 25 '10 at 3:27,
+        on the question:
+
+        https://stackoverflow.com/questions/2130016/splitting-a-list-into-n-parts-of-approximately-equal-length
+
+        """
+        avg = len(seq) / float(num)
+        out = []
+        last = 0.0
+
+        while last < len(seq):
+            out.append(seq[int(last):int(last + avg)])
+            last += avg
+
+        return out
