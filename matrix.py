@@ -77,31 +77,40 @@ class Matrix():
             raise Exception("MultByNonInt")
 
     def __matmul__(self, other):
-        if self.columns == other.rows:
+        """
+        Multiply a matrix by another matrix.
+        """
+        if self.columns == other.rows: # Check if they can be multiplied
             values = []
             for i in range(other.columns):
-                for x in range(self.rows):
+                for x in range(self.rows): # For each row and column pair
                     row = self.get_row(self, x)
-                    column = self.get_col(other, i)
-                    for z in range(self.columns):
-                        values.append(row[z] * column[z])
-            vals = self.chunk_it(values, self.rows * other.columns)
+                    column = self.get_col(other, i) # Get the current row and column
+                    for z in range(self.columns): # For each value in the row and column
+                        values.append(row[z] * column[z]) # Calculate the value and append it to values
+            vals = self.chunk_it(values, self.rows * other.columns) # Split the values in to sets of 3
             _values = []
             for _list in vals:
                 value = 0
                 for val in _list:
-                    value += val
-                _values.append(value)
-            _values = _values[0::2] + _values[1::2]
+                    value += val # Add the values in each list together
+                _values.append(value) # Append the final value
+            _values = _values[0::2] + _values[1::2] # Reorganize the values to the right order
             return Matrix(self.rows, other.columns, tuple(_values))
         else:
             raise Exception("UnequalRowsAndColumns")
 
     def get_col(self, matrix, col_num):
+        """
+        Get a column at position x.
+        """
         column = matrix.values[col_num::matrix.columns]
         return column
 
     def get_row(self, matrix, row_num):
+        """
+        Get a row at position x.
+        """
         values = matrix.values
         rows = self.chunk_it(values, matrix.rows)
         return rows[row_num]
